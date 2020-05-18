@@ -35,8 +35,9 @@ class Demangler(object):
             CPPFILT, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
     def demangle(self, name):
-        self.pipe.stdin.write(name + "\n")
-        return self.pipe.stdout.readline().rstrip()
+        self.pipe.stdin.write((name + "\n").encode())
+        self.pipe.stdin.flush()
+        return self.pipe.stdout.readline().decode().rstrip()
 
 
 class LcovCobertura(object):
@@ -133,8 +134,8 @@ class LcovCobertura(object):
                 # Get file name
                 file_name = line_parts[-1].strip()
                 relative_file_name = os.path.relpath(file_name, self.base_dir)
-                package = '.'.join(relative_file_name.split(os.path.sep)[0:-1])
-                class_name = '.'.join(relative_file_name.split(os.path.sep))
+                package = '/'.join(relative_file_name.split(os.path.sep)[0:-1])
+                class_name = relative_file_name.split(os.path.sep)[-1]
                 if package not in coverage_data['packages']:
                     coverage_data['packages'][package] = {
                         'classes': {}, 'lines-total': 0, 'lines-covered': 0,
